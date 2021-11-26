@@ -42,7 +42,7 @@
 export default {};
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .brand {
   margin: 10px 0;
 
