@@ -1,11 +1,13 @@
 <template>
   <div>
-    <h2>这是一个Search</h2>
+    <TypeNav></TypeNav>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  name: "Search",
+};
 </script>
 
 <style></style>

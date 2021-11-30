@@ -36,6 +36,7 @@
             type="text"
             id="autocomplete"
             class="input-error input-xxlarge"
+            v-model="keyword"
           />
           <button
             class="sui-btn btn-xlarge btn-danger"
@@ -53,9 +54,22 @@
 <script>
 export default {
   name: "Header",
+  data() {
+    return {
+      keyword: "",
+    };
+  },
   methods: {
     btnSearch() {
-      this.$router.push("/search");
+      this.$router.push({
+        name: "search",
+        query: {
+          // 点击搜索时和以前的参数拼在一起
+          ...this.$route.query,
+          // 路由跳转时，如果参数没有值是undefined时，会自动过滤掉undefined
+          keyword: this.keyword || undefined,
+        },
+      });
     },
   },
 };

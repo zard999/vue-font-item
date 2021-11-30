@@ -1,10 +1,12 @@
 /**
  * 1. 这个home.js文件是专门用于处理home组件（主页面）
  * */
-import { reqCategoryListData } from "@/api";
+import { reqCategoryListData, reqBanner, reqFloor } from "@/api";
 import { HOME } from "../mutation-types";
 const state = {
   categoryList: [],
+  bannerList: [],
+  floorList: [],
 };
 
 const mutations = {
@@ -12,15 +14,41 @@ const mutations = {
   [HOME.SAVE_CATEGORY_LIST_DATA](state, data) {
     state.categoryList = data.slice(0, 15);
   },
+
+  // 存取轮播图数据
+  [HOME.SAVE_BANNER](state, data) {
+    state.bannerList = data;
+  },
+
+  // 存取楼层数据
+  [HOME.SAVE_FLOOR](state, data) {
+    state.floorList = data;
+  },
 };
 
 const actions = {
   // 异步获取三级导航的数据
   async getCategoryListData({ commit }) {
     const result = await reqCategoryListData();
-    console.log(result);
     if (result.code === 200) {
       commit(HOME.SAVE_CATEGORY_LIST_DATA, result.data);
+    }
+  },
+
+  // 异步获取轮播图数据
+  async getBanner({ commit }) {
+    const result = await reqBanner();
+    if (result.code === 200) {
+      commit(HOME.SAVE_BANNER, result.data);
+    }
+  },
+
+  // 异步获取楼层数据
+  async getFloor({ commit }) {
+    const result = await reqFloor();
+    console.log(result);
+    if (result.code === 200) {
+      commit(HOME.SAVE_FLOOR, result.data);
     }
   },
 };

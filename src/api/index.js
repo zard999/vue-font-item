@@ -5,7 +5,12 @@
  **/
 // 1. 引入axios，也就是ajax这个文件，然后发送请求
 import ajax from "./ajax";
+import mockAjax from "./mockAjax";
 
 // 2. 将发生请求的操作封装到函数当中，向外暴露
 export const reqCategoryListData = () =>
   ajax.get("/product/getBaseCategoryList");
+
+export const reqBanner = () => mockAjax.get("/banner");
+
+export const reqFloor = () => mockAjax.get("/floor");

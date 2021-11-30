@@ -2,15 +2,26 @@
   <!-- 商品分类导航 -->
   <div class="type-nav">
     <div class="container">
-      <div class="nav-left">
-        <h2 class="all">全部商品分类</h2>
-        <div class="sort">
+      <div class="nav-left" @mouseleave="handleLeave">
+        <h2 class="all" @mouseenter="isShowNav = true">全部商品分类</h2>
+        <div class="sort" v-show="isShowNav">
           <div class="all-sort-list2" @click="btnSearch">
-            <div class="item" v-for="c1 in categoryList" :key="c1.categoryId">
+            <div
+              class="item"
+              :class="{ hov: currentIndex === index }"
+              v-for="(c1, index) in categoryList"
+              :key="c1.categoryId"
+              @mouseenter="showCategorys(index)"
+              @mouseleave="hideCategorys"
+            >
               <h3>
-                <a href="" :data-categoryName="c1.categoryName">{{
-                  c1.categoryName
-                }}</a>
+                <a
+                  href="javascript:;"
+                  :data-level="1"
+                  :data-name="c1.categoryName"
+                  :data-id="c1.categoryId"
+                  >{{ c1.categoryName }}</a
+                >
               </h3>
               <div class="item-list clearfix">
                 <div class="subitem">
@@ -20,11 +31,23 @@
                     :key="c2.categoryId"
                   >
                     <dt>
-                      <a href="">{{ c2.categoryName }}</a>
+                      <a
+                        href="javascript:;"
+                        :data-level="2"
+                        :data-name="c2.categoryName"
+                        :data-id="c2.categoryId"
+                        >{{ c2.categoryName }}</a
+                      >
                     </dt>
                     <dd>
                       <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
-                        <a href="">{{ c3.categoryName }}</a>
+                        <a
+                          href="javascript:;"
+                          :data-level="3"
+                          :data-name="c3.categoryName"
+                          :data-id="c3.categoryId"
+                          >{{ c3.categoryName }}</a
+                        >
                       </em>
                     </dd>
                   </dl>
@@ -53,6 +76,13 @@ import { mapState } from "vuex";
 export default {
   name: "TypeNav",
 
+  data() {
+    return {
+      isShowNav: true,
+      currentIndex: -1,
+    };
+  },
+
   computed: {
     // 模块化前面要加对应的模块名称
     ...mapState("home", ["categoryList"]),
@@ -60,18 +90,61 @@ export default {
 
   methods: {
     btnSearch(event) {
-      console.log(event.target);
-      // this.$router.push("/search");
+      /**
+       * 拿到data自定义属性
+       * level: 表示是几级菜单，后面好拼接
+       */
+      const { name: categoryName, level, id } = event.target.dataset;
+      // 拼接
+      const { keyword } = this.$route.query;
+      if (categoryName) {
+        this.$router.push({
+          path: "/search",
+          query: {
+            keyword,
+            categoryName,
+            ["category" + level + "id"]: id,
+          },
+        });
+      }
+    },
+
+    // 鼠标移出
+    handleLeave() {
+      if (!this.$route.meta.isShowTypeNav) {
+        this.isShowNav = false;
+      }
+    },
+
+    // 鼠标移出显示列表
+    showCategorys(index) {
+      this.currentIndex = index;
+    },
+
+    // 隐藏列表
+    hideCategorys() {
+      this.currentIndex = -1;
     },
   },
 
   mounted() {
-    // 全局形式的派发，应该使用模块化模式的派发
-    // this.$store.dispatch("getCategoryListData");
-    // 加上路径
-    this.$store.dispatch("home/getCategoryListData");
+    // 在search中是没有meta数据的。所以隐藏
+    if (!this.$route.meta.isShowTypeNav) {
+      this.isShowNav = false;
+    }
   },
 };
+/**
+ * 1. 单击三级连接实现跳转的同时携带参数
+ *  1. 我们没有将所有的 a 标签都改成 router-link 的形式进行传参，因为有太多的 a 标签需要改成 router-link
+      的形式，还要改成to的形式，再传参，效率低，不好
+ *  2. 为了提高效率我们也不是给每一个a标签都注册事件，而是给所有的父级通过委托的方式注册了一个btnSearch
+ *  3. 当单机事件被触发时，需要跳转到search页面的时候，携带参数。
+ * 
+ * 2. 使用路由元来控制TypeNav列表的显示与隐藏
+ *  1. Home页面中的TypeNav要完整显示
+ *  2. Search页面中的TypeNav要隐藏，鼠标移动上去又显示出来
+ */
 </script>
 
 <style lang="less" scoped>
@@ -189,6 +262,10 @@ export default {
               display: block;
             }
           }
+        }
+
+        .hov {
+          background-color: #999;
         }
       }
     }
