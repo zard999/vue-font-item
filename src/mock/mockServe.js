@@ -4,9 +4,9 @@
  * 3. 测试
  */
 import banner from "./banner.json";
-import floor from "./floor.json";
+import floors from "./floors.json";
 import Mock from "mockjs";
 
 // Mock.mock(url, method,data)
 Mock.mock("/mock/banner", "get", { code: 200, data: banner });
-Mock.mock("/mock/floor", "get", { code: 200, data: floor });
+Mock.mock("/mock/floors", "get", { code: 200, data: floors });

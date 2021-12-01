@@ -103,7 +103,7 @@ export default {
           query: {
             keyword,
             categoryName,
-            ["category" + level + "id"]: id,
+            ["category" + level + "Id"]: id,
           },
         });
       }

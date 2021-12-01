@@ -13,4 +13,7 @@ export const reqCategoryListData = () =>
 
 export const reqBanner = () => mockAjax.get("/banner");
 
-export const reqFloor = () => mockAjax.get("/floor");
+export const reqFloors = () => mockAjax.get("/floors");
+
+// 获取search的商品数据
+export const reqSearchInfo = (searchParams) => ajax.post("/list", searchParams);

@@ -1,12 +1,12 @@
 /**
  * 1. 这个home.js文件是专门用于处理home组件（主页面）
  * */
-import { reqCategoryListData, reqBanner, reqFloor } from "@/api";
+import { reqCategoryListData, reqBanner, reqFloors } from "@/api";
 import { HOME } from "../mutation-types";
 const state = {
   categoryList: [],
   bannerList: [],
-  floorList: [],
+  floorsList: [],
 };
 
 const mutations = {
@@ -22,7 +22,7 @@ const mutations = {
 
   // 存取楼层数据
   [HOME.SAVE_FLOOR](state, data) {
-    state.floorList = data;
+    state.floorsList = data;
   },
 };
 
@@ -44,9 +44,8 @@ const actions = {
   },
 
   // 异步获取楼层数据
-  async getFloor({ commit }) {
-    const result = await reqFloor();
-    console.log(result);
+  async getFloorsList({ commit }) {
+    const result = await reqFloors();
     if (result.code === 200) {
       commit(HOME.SAVE_FLOOR, result.data);
     }

@@ -16,7 +16,12 @@
     <Like></Like>
 
     <!-- 楼层 -->
-    <Floor></Floor>
+    <Floor
+      v-for="floors in floorsList"
+      :floors="floors"
+      :key="floors.id"
+      :cname="'floors-container' + floors.id"
+    ></Floor>
 
     <!-- 商标 -->
     <Brand></Brand>
@@ -31,6 +36,7 @@ import Rank from "./Rank";
 import Like from "./Like";
 import Floor from "./Floor";
 import Brand from "./Brand";
+import { mapState } from "vuex";
 export default {
   name: "Home",
   components: {
@@ -41,6 +47,14 @@ export default {
     Like,
     Floor,
     Brand,
+  },
+  computed: {
+    ...mapState({
+      floorsList: (state) => state.home.floorsList || [],
+    }),
+  },
+  mounted() {
+    this.$store.dispatch("home/getFloorsList");
   },
 };
 </script>
