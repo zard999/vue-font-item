@@ -59,6 +59,13 @@ export default {
       keyword: "",
     };
   },
+
+  mounted() {
+    this.$bus.$on("clearKeyword", () => {
+      this.keyword = "";
+    });
+  },
+
   methods: {
     btnSearch() {
       this.$router.push({

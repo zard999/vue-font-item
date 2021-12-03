@@ -5,18 +5,24 @@
       <div class="fl key brand">品牌</div>
       <div class="value logos">
         <ul class="logo-list">
-          <li v-for="trademark in trademarkList" :key="trademark.tmId">
+          <li
+            v-for="trademark in trademarkList"
+            :key="trademark.tmId"
+            @click="handleTrademark(trademark)"
+          >
             {{ trademark.tmName }}
           </li>
         </ul>
       </div>
     </div>
-    <div class="type-wrap">
-      <div class="fl key">网络制式</div>
+    <div class="type-wrap" v-for="attrs in attrsList" :key="attrs.attrId">
+      <div class="fl key">{{ attrs.attrName }}</div>
       <div class="fl value">
         <ul class="type-list">
-          <li>
-            <a>GSM（移动/联通2G）</a>
+          <li v-for="attr in attrs.attrValueList" :key="attr">
+            <a @click="handleAttr(attrs.attrId, attr, attrs.attrName)">{{
+              attr
+            }}</a>
           </li>
         </ul>
       </div>
@@ -31,6 +37,16 @@ export default {
   name: "SearchSelector",
   computed: {
     ...mapGetters("search", ["trademarkList", "attrsList"]),
+  },
+
+  methods: {
+    handleTrademark(trademark) {
+      this.$emit("handleTrademark", trademark);
+    },
+
+    handleAttr(id, content, name) {
+      this.$emit("handleAttr", id, content, name);
+    },
   },
 };
 </script>

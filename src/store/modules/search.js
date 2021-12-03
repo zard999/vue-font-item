@@ -4,8 +4,9 @@ const state = {
   /**
    * searchInfo{
    *  goodsList： 商品
-   *  attrsList,
+   *  attrsList: 手机属性
    *  trademarkList：品牌
+   *  total: 商品总数
    * }
    */
   searchInfo: {},
@@ -37,6 +38,10 @@ const getters = {
 
   trademarkList(state) {
     return state.searchInfo.trademarkList;
+  },
+
+  total(state) {
+    return state.searchInfo.total;
   },
 };
 

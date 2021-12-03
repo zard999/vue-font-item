@@ -12,15 +12,34 @@
             </li>
           </ul>
           <ul class="fl sui-tag">
-            <li class="with-x">手机</li>
-            <li class="with-x">iphone<i>×</i></li>
-            <li class="with-x">华为<i>×</i></li>
-            <li class="with-x">OPPO<i>×</i></li>
+            <li class="with-x" v-if="searchParams.categoryName">
+              {{ searchParams.categoryName }}
+              <i @click="removeCategoryName">×</i>
+            </li>
+            <li class="with-x" v-if="searchParams.keyword">
+              {{ searchParams.keyword }}
+              <i @click="removeKeyword">×</i>
+            </li>
+            <li class="with-x" v-if="searchParams.trademark">
+              {{ searchParams.trademark.split(":")[1] }}
+              <i @click="removeTrademark">×</i>
+            </li>
+            <li
+              class="with-x"
+              v-for="(prop, index) in searchParams.props"
+              :key="prop"
+            >
+              {{ prop.split(":")[1] }}
+              <i @click="removeProp(index)">×</i>
+            </li>
           </ul>
         </div>
 
         <!-- 搜索器 -->
-        <SearchSelector />
+        <SearchSelector
+          @handleTrademark="handleTrademark"
+          @handleAttr="handleAttr"
+        />
 
         <!--商品展示区-->
         <div class="details clearfix">
@@ -32,19 +51,7 @@
                   <a href="#">综合</a>
                 </li>
                 <li>
-                  <a href="#">销量</a>
-                </li>
-                <li>
-                  <a href="#">新品</a>
-                </li>
-                <li>
-                  <a href="#">评价</a>
-                </li>
-                <li>
                   <a href="#">价格⬆</a>
-                </li>
-                <li>
-                  <a href="#">价格⬇</a>
                 </li>
               </ul>
             </div>
@@ -92,35 +99,13 @@
             </ul>
           </div>
           <!-- 分页器 -->
-          <div class="fr page">
-            <div class="sui-pagination clearfix">
-              <ul>
-                <li class="prev disabled">
-                  <a href="#">«上一页</a>
-                </li>
-                <li class="active">
-                  <a href="#">1</a>
-                </li>
-                <li>
-                  <a href="#">2</a>
-                </li>
-                <li>
-                  <a href="#">3</a>
-                </li>
-                <li>
-                  <a href="#">4</a>
-                </li>
-                <li>
-                  <a href="#">5</a>
-                </li>
-                <li class="dotted"><span>...</span></li>
-                <li class="next">
-                  <a href="#">下一页»</a>
-                </li>
-              </ul>
-              <div><span>共10页&nbsp;</span></div>
-            </div>
-          </div>
+          <Pagination
+            :total="this.total"
+            :pageSize="searchParams.pageSize"
+            :pageNo="searchParams.pageNo"
+            :continues="5"
+            @changePageNo="changePageNo"
+          ></Pagination>
         </div>
       </div>
     </div>
@@ -128,7 +113,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import SearchSelector from "./SearchSelector";
 export default {
   name: "Search",
@@ -144,7 +129,7 @@ export default {
         trademark: "",
         order: "",
         pageNo: 1,
-        pageSize: 10,
+        pageSize: 5,
       },
     };
   },
@@ -157,14 +142,7 @@ export default {
     // 当监视$route时，不要深度监视，因为每一次路由跳转都会生成一个新的$route
     $route: {
       handler() {
-        Object.assign(this.searchParams, {
-          category3Id: undefined,
-          category2Id: undefined,
-          category1Id: undefined,
-          categoryName: undefined,
-          keyword: undefined,
-        });
-        Object.assign(this.searchParams, this.$route.query);
+        this.handlerSearchParams();
         this.getSearchInfo();
       },
       immediate: true,
@@ -172,7 +150,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters("search", ["goodsList"]),
+    ...mapState("search", ["productList"]),
+    ...mapGetters("search", ["goodsList", "total"]),
   },
 
   methods: {
@@ -180,9 +159,85 @@ export default {
       // 请求search数据
       this.$store.dispatch("search/getSearchInfo", this.searchParams);
     },
-  },
 
-  mounted() {},
+    // 点击品牌重新请求数据
+    handleTrademark(trademark) {
+      this.searchParams.trademark = `${trademark.tmId}:${trademark.tmName}`;
+      this.searchParams.pageNo = 1;
+      this.getSearchInfo();
+    },
+
+    // 更新this.searchParams
+    handlerSearchParams() {
+      Object.assign(
+        this.searchParams,
+        {
+          category3Id: undefined,
+          category2Id: undefined,
+          category1Id: undefined,
+          categoryName: undefined,
+          keyword: undefined,
+        },
+        this.$route.query
+      );
+    },
+
+    // 更新手机属性
+    handleAttr(id, content, name) {
+      let prop = `${id}:${content}:${name}`;
+
+      // 判断prop是否在props中存在
+      let isRepeated = this.searchParams.props.some((item) => item === prop);
+      if (isRepeated) return;
+      this.searchParams.props.push(prop);
+      this.getSearchInfo();
+    },
+
+    // 移除三级导航分类名
+    removeCategoryName() {
+      this.searchParams.pageNo = 1;
+      this.$router.replace({
+        name: "search",
+        query: {
+          keyword: this.keyword,
+        },
+      });
+    },
+
+    // 移除关键字
+    removeKeyword() {
+      this.searchParams.pageNo = 1;
+      this.$bus.$emit("clearKeyword");
+      this.$router.replace({
+        name: "search",
+        query: {
+          ...this.$route.query,
+          keyword: undefined,
+        },
+      });
+    },
+
+    // 移除品牌
+    removeTrademark() {
+      this.searchParams.trademark = undefined;
+      this.searchParams.pageNo = 1;
+      this.getSearchInfo();
+    },
+
+    // 移除属性
+    removeProp(index) {
+      this.searchParams.props.splice(index, 1);
+      this.searchParams.pageNo = 1;
+      this.getSearchInfo();
+    },
+
+    changePageNo(val, totalPage) {
+      if (val === 0 || val === totalPage + 1) return;
+      console.log(val);
+      this.searchParams.pageNo = val;
+      this.getSearchInfo();
+    },
+  },
 };
 </script>
 <style lang="less" scoped>
