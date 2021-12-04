@@ -47,11 +47,31 @@
           <div class="sui-navbar">
             <div class="navbar-inner filter">
               <ul class="sui-nav">
-                <li class="active">
-                  <a href="#">综合</a>
+                <li :class="{ active: sortFlag === '1' }">
+                  <a href="javascript:;" @click="changeOrder('1')">
+                    综合
+                    <i
+                      class="iconfont"
+                      v-if="sortFlag === '1'"
+                      :class="{
+                        icondown: searchParams.order.split(':')[1] === 'desc',
+                        iconup: searchParams.order.split(':')[1] === 'asc',
+                      }"
+                    ></i>
+                  </a>
                 </li>
-                <li>
-                  <a href="#">价格⬆</a>
+                <li :class="{ active: sortFlag === '2' }">
+                  <a href="javascript:;" @click="changeOrder('2')">
+                    价格
+                    <i
+                      class="iconfont"
+                      v-if="sortFlag === '2'"
+                      :class="{
+                        icondown: searchParams.order.split(':')[1] === 'desc',
+                        iconup: searchParams.order.split(':')[1] === 'asc',
+                      }"
+                    ></i>
+                  </a>
                 </li>
               </ul>
             </div>
@@ -100,7 +120,7 @@
           </div>
           <!-- 分页器 -->
           <Pagination
-            :total="this.total"
+            :total="total"
             :pageSize="searchParams.pageSize"
             :pageNo="searchParams.pageNo"
             :continues="5"
@@ -127,9 +147,9 @@ export default {
         keyword: "",
         props: [],
         trademark: "",
-        order: "",
+        order: "1:desc",
         pageNo: 1,
-        pageSize: 5,
+        pageSize: 3,
       },
     };
   },
@@ -152,6 +172,15 @@ export default {
   computed: {
     ...mapState("search", ["productList"]),
     ...mapGetters("search", ["goodsList", "total"]),
+
+    // 排序获取flag和type
+    sortFlag() {
+      return this.searchParams.order.split(":")[0];
+    },
+
+    sortType() {
+      return this.searchParams.order.split(":")[1];
+    },
   },
 
   methods: {
@@ -231,10 +260,25 @@ export default {
       this.getSearchInfo();
     },
 
+    // 改变当前页数
     changePageNo(val, totalPage) {
       if (val === 0 || val === totalPage + 1) return;
-      console.log(val);
       this.searchParams.pageNo = val;
+      this.getSearchInfo();
+    },
+
+    // 排序
+    changeOrder(sortFlag) {
+      let originFlag = this.sortFlag;
+      let originType = this.sortType;
+      let newOrder = "";
+      if (sortFlag !== originFlag) {
+        newOrder = `${sortFlag}:desc`;
+      } else {
+        newOrder = `${originFlag}:${originType === "asc" ? "desc" : "asc"}`;
+      }
+      this.searchParams.order = newOrder;
+      this.searchParams.pageNo = 1;
       this.getSearchInfo();
     },
   },

@@ -6,7 +6,7 @@
     <button v-show="startAndEnd.start > 1" @click="changePageNo(1)">1</button>
     <span v-show="startAndEnd.start > 2">...</span>
     <button
-      v-for="(_, index) in continues"
+      v-for="(_, index) in continues > totalPage ? totalPage : continues"
       :key="_"
       :class="{ active: startAndEnd.start + index === pageNo }"
       @click="changePageNo(startAndEnd.start + index)"
@@ -50,7 +50,7 @@ export default {
       const { pageNo, continues, totalPage } = this;
       let start, end;
       if (continues > totalPage) {
-        // 当连续页数大于总页数
+        // 当连续页数大于总页数,让continues等于totalPage
         end = totalPage;
         start = 1;
       } else {
@@ -67,15 +67,12 @@ export default {
         if (end > totalPage) {
           end = totalPage;
           // + 1是因为计算数字的长度会多一
-          start = this.totalPage - continues + 1;
+          start = totalPage - continues + 1;
         }
       }
+
       return { start, end };
     },
-  },
-
-  mounted() {
-    console.log(this.startAndEnd.end + (this.continues >> 1));
   },
 
   methods: {
