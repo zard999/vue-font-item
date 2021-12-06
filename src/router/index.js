@@ -1,44 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home";
-import Login from "../views/Login";
-import Register from "../views/Register";
-import Search from "../views/Search";
+import routes from "./routes";
 Vue.use(VueRouter);
-
-const routes = [
-  {
-    path: "/home",
-    name: "home",
-    component: Home,
-    meta: { isShowTypeNav: true },
-  },
-  {
-    path: "/login",
-    name: "login",
-    component: Login,
-    meta: {
-      isHiddenFooter: true,
-    }, // 元数据，可以写一些差异化配置
-  },
-  {
-    path: "/register",
-    name: "register",
-    component: Register,
-    meta: {
-      isHiddenFooter: true,
-    },
-  },
-  {
-    path: "/search",
-    name: "search",
-    component: Search,
-  },
-  {
-    path: "/",
-    redirect: "/home",
-  },
-];
 
 const originalPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function (location, onResolve, onReject) {
@@ -51,6 +14,14 @@ VueRouter.prototype.push = function (location, onResolve, onReject) {
 const router = new VueRouter({
   mode: "history",
   routes,
+  // 对于所有路由导航，简单地让页面滚动到顶部。to代表要去的路由信息，from代表当前路由信息
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { x: 0, y: 0 };
+    }
+  },
 });
 
 export default router;

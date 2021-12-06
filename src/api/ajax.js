@@ -1,6 +1,8 @@
 import axios from "axios";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
+// 未登陆前设置一个用户Id
+import { getUserTempId } from "@/utils/userabout";
 
 const ajax = axios.create({
   baseURL: "/api",
@@ -10,6 +12,7 @@ const ajax = axios.create({
 ajax.interceptors.request.use((config) => {
   // Do something before request is sent
   NProgress.start();
+  config.headers.userTempId = getUserTempId();
   return config;
 });
 

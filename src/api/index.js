@@ -17,3 +17,17 @@ export const reqFloors = () => mockAjax.get("/floors");
 
 // 获取search的商品数据
 export const reqSearchInfo = (searchParams) => ajax.post("/list", searchParams);
+
+// 获取商品详情
+export const reqDetailInfo = (skuld) => ajax.get(`/item/${skuld}`);
+
+// 添加选中的商品到购物车
+export const reqAddOrUpdateShopCart = (skuId, skuNum) =>
+  ajax.post(`/cart/addToCart/${skuId}/${skuNum}`);
+
+// 获取购物车数据
+export const reqShopCart = () => ajax.get("/cart/cartList");
+
+// 切换商品选中状态
+export const reqCheckCart = (skuID, isChecked) =>
+  ajax.get(`/cart/checkCart/${skuID}/${isChecked}`);
