@@ -48,7 +48,12 @@
             <span class="sum">{{ cartInfo.skuNum * cartInfo.cartPrice }}</span>
           </li>
           <li class="cart-list-con7">
-            <a href="#none" class="sindelet">删除</a>
+            <a
+              href="javascript:;"
+              class="sindelet"
+              @click="showDialogByDelOneCartInfo(cartInfo.skuId)"
+              >删除</a
+            >
             <br />
             <a href="#none">移到收藏</a>
           </li>
@@ -57,12 +62,11 @@
     </div>
     <div class="cart-tool">
       <div class="select-all">
-        <input class="chooseAll" type="checkbox" />
+        <input class="chooseAll" type="checkbox" v-model="checkAll" />
         <span>全选</span>
       </div>
       <div class="option">
-        <a href="#none">删除选中的商品</a>
-        <a href="#none">移到我的关注</a>
+        <a href="javascript:;">删除选中的商品</a>
         <a href="#none">清除下柜商品</a>
       </div>
       <div class="money-box">
@@ -76,18 +80,36 @@
         </div>
       </div>
     </div>
+
+    <!-- 使用Dialog弹框 -->
+    <Dialog :visible.sync="visible">
+      <template v-slot:header>
+        <span>提示</span>
+      </template>
+      <template> <p>你真的要删除数据吗？</p> </template>
+      <template #footer>
+        <button class="btn" @click="visible = false">取消</button>
+        <button class="btn primary" @click="delOneShopCartInfo">确定</button>
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script>
-import { reqShopCart, reqCheckCart } from "@/api";
+import Dialog from "@/components/Dialog";
+import { reqShopCart, reqCheckCart, reqDelOnShopCartInfo } from "@/api";
 export default {
   name: "ShopCart",
+  components: {
+    Dialog,
+  },
 
   data() {
     return {
       cartInfoList: [],
       value: 1,
+      visible: false,
+      skuId: "",
     };
   },
 
@@ -98,19 +120,70 @@ export default {
       let isChecked = cartInfo.isChecked ? 0 : 1;
       const result = await reqCheckCart(cartInfo.skuId, isChecked);
       if (result.code === 200) {
-        console.log("成功了");
+        console.log(result);
+      } else {
+        console.log(result.message);
+      }
+      this.getCartInfoList();
+    },
+
+    // 获取cartInfoList购物车列表
+    async getCartInfoList() {
+      const result = await reqShopCart();
+      console.log(result);
+      if (result.code === 200) {
+        if (!result.data.length) {
+          return (this.cartInfoList = []);
+        }
+        this.cartInfoList = result.data[0].cartInfoList;
+      }
+    },
+
+    // 点击删除打开Dialog
+    showDialogByDelOneCartInfo(skuId) {
+      this.visible = true;
+      this.skuId = skuId;
+    },
+
+    // 删除商品
+    async delOneShopCartInfo() {
+      const result = await reqDelOnShopCartInfo(this.skuId);
+      if (result.code === 200) {
+        this.visible = false;
+        this.cartInfoList = this.cartInfoList.filter(
+          (item) => item.skuId !== this.skuId
+        );
       } else {
         console.log(result.message);
       }
     },
+
+    // 删除选中的商品
+  },
+
+  computed: {
+    checkAll: {
+      get() {
+        return this.cartInfoList.every((item) => item.isChecked);
+      },
+      set(val) {
+        this.cartInfoList.forEach((item) => {
+          item.isChecked = val ? 1 : 0;
+
+          // 每次一都改变isChecked
+          this.checkCartInfoStart({
+            skuId: item.skuId,
+            // 这个要取反一下，上面的函数也取反了
+            isChecked: 1 - item.isChecked,
+          });
+        });
+      },
+    },
   },
 
   // 获取数据
-  async mounted() {
-    const result = await reqShopCart();
-    if (result.code === 200) {
-      this.cartInfoList = result.data[0].cartInfoList;
-    }
+  mounted() {
+    this.getCartInfoList();
   },
 };
 </script>

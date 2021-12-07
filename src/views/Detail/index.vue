@@ -375,7 +375,6 @@ export default {
     async addShopCart() {
       // 不用三连环,因为是服务器添加，不关本地的事
       const result = await reqAddOrUpdateShopCart(this.id, this.count);
-      console.log(result);
       if (result.code === 200) {
         console.log("购物车添加成功");
         this.$router.push({

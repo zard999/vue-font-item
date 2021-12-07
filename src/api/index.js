@@ -31,3 +31,13 @@ export const reqShopCart = () => ajax.get("/cart/cartList");
 // 切换商品选中状态
 export const reqCheckCart = (skuID, isChecked) =>
   ajax.get(`/cart/checkCart/${skuID}/${isChecked}`);
+
+// 删除选中商品
+export const reqDelOnShopCartInfo = (skuId) =>
+  ajax.delete(`/cart/deleteCart/${skuId}`);
+
+// 获取验证码
+export const reqCode = (phone) => ajax.get(`/user/passport/sendCode/${phone}`);
+
+// 注册账号
+export const reqRegister = (user) => ajax.post("/user/passport/register", user);
