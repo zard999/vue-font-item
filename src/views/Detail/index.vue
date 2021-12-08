@@ -338,7 +338,7 @@
 <script>
 import ImageList from "./ImageList/ImageList";
 import Zoom from "./Zoom/Zoom";
-import { reg } from "@/utils/reg";
+import { skuNumberReg } from "@/utils/reg";
 import { mapGetters } from "vuex";
 import { reqAddOrUpdateShopCart } from "@/api";
 export default {
@@ -376,7 +376,8 @@ export default {
       // 不用三连环,因为是服务器添加，不关本地的事
       const result = await reqAddOrUpdateShopCart(this.id, this.count);
       if (result.code === 200) {
-        console.log("购物车添加成功");
+        alert("购物车添加成功");
+        sessionStorage.setItem("SKUINFO_KEY", JSON.stringify(this.skuInfo));
         this.$router.push({
           name: "addcartsuccess",
           query: {
@@ -396,7 +397,7 @@ export default {
 
   watch: {
     count(newValue) {
-      if (reg.test(+newValue)) {
+      if (skuNumberReg.test(+newValue)) {
         this.count = +newValue;
       } else if (+newValue > 200) {
         this.count = 200;

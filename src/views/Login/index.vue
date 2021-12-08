@@ -14,14 +14,22 @@
           </ul>
 
           <div class="content">
-            <form action="##">
+            <form @submit.prevent="userLogin">
               <div class="input-text clearFix">
                 <span></span>
-                <input type="text" placeholder="邮箱/用户名/手机号" />
+                <input
+                  type="text"
+                  placeholder="邮箱/用户名/手机号"
+                  v-model="phone"
+                />
               </div>
               <div class="input-text clearFix">
                 <span class="pwd"></span>
-                <input type="text" placeholder="请输入密码" />
+                <input
+                  type="text"
+                  placeholder="请输入密码"
+                  v-model="password"
+                />
               </div>
               <div class="setting clearFix">
                 <label class="checkbox inline">
@@ -69,6 +77,21 @@
 <script>
 export default {
   name: "Login",
+  data() {
+    return {
+      phone: "",
+      password: "",
+    };
+  },
+
+  methods: {
+    async userLogin() {
+      const { phone, password } = this;
+      await this.$store.dispatch("user/getUserInfo", { phone, password });
+      // 如果要是登录成功的话则跳转到主页面
+      this.$router.push("/home");
+    },
+  },
 };
 </script>
 

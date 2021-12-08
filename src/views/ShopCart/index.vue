@@ -34,15 +34,26 @@
             <span class="price">{{ cartInfo.cartPrice }}</span>
           </li>
           <li class="cart-list-con5">
-            <a href="javascript:void(0)" class="mins">-</a>
+            <a
+              href="javascript:void(0)"
+              class="mins"
+              @click="changeSkuNum('decrement', cartInfo)"
+              >-</a
+            >
             <input
               autocomplete="off"
               type="text"
               :value="cartInfo.skuNum"
               minnum="1"
               class="itxt"
+              @change="changeSkuNum('change', cartInfo, $event)"
             />
-            <a href="javascript:void(0)" class="plus">+</a>
+            <a
+              href="javascript:void(0)"
+              class="plus"
+              @click="changeSkuNum('increment', cartInfo)"
+              >+</a
+            >
           </li>
           <li class="cart-list-con6">
             <span class="sum">{{ cartInfo.skuNum * cartInfo.cartPrice }}</span>
@@ -66,30 +77,39 @@
         <span>全选</span>
       </div>
       <div class="option">
-        <a href="javascript:;">删除选中的商品</a>
+        <a href="javascript:;" @click="showDialogByDelCartInfo"
+          >删除选中的商品</a
+        >
         <a href="#none">清除下柜商品</a>
       </div>
       <div class="money-box">
-        <div class="chosed">已选择 <span>0</span>件商品</div>
+        <div class="chosed">
+          已选择 <span>{{ selectedCount }}</span
+          >件商品
+        </div>
         <div class="sumprice">
           <em>总价（不含运费） ：</em>
-          <i class="summoney">0</i>
+          <i class="summoney">{{ selectedPrice }}</i>
         </div>
         <div class="sumbtn">
-          <a class="sum-btn" href="###" target="_blank">结算</a>
+          <a class="sum-btn" href="javascript:;" @click="$router.push('/trade')"
+            >结算</a
+          >
         </div>
       </div>
     </div>
 
     <!-- 使用Dialog弹框 -->
-    <Dialog :visible.sync="visible">
+    <Dialog :visible.sync="visible" :isDelOne="isDelOne">
       <template v-slot:header>
         <span>提示</span>
       </template>
-      <template> <p>你真的要删除数据吗？</p> </template>
+      <template>
+        <p>你真的要删除这{{ isDelOne ? "1条" : "些" }}商品吗？</p>
+      </template>
       <template #footer>
         <button class="btn" @click="visible = false">取消</button>
-        <button class="btn primary" @click="delOneShopCartInfo">确定</button>
+        <button class="btn primary" @click="delShopCartInfo">确定</button>
       </template>
     </Dialog>
   </div>
@@ -97,7 +117,14 @@
 
 <script>
 import Dialog from "@/components/Dialog";
-import { reqShopCart, reqCheckCart, reqDelOnShopCartInfo } from "@/api";
+import {
+  reqShopCart,
+  reqCheckCart,
+  reqDelOnShopCartInfo,
+  reqDelSelectedCartInfo,
+  reqAddOrUpdateShopCart,
+} from "@/api";
+import { skuNumberReg } from "@/utils/reg";
 export default {
   name: "ShopCart",
   components: {
@@ -110,13 +137,15 @@ export default {
       value: 1,
       visible: false,
       skuId: "",
+      isDelOne: false,
+      skuIdList: [], // 批量删除被选中的id
+      leftCartInfoList: [], //剩余未删除商品
     };
   },
 
   methods: {
     // 更新商品选中状态
     async checkCartInfoStart(cartInfo) {
-      // let isChecked = 1 - cartInfo.isChecked
       let isChecked = cartInfo.isChecked ? 0 : 1;
       const result = await reqCheckCart(cartInfo.skuId, isChecked);
       if (result.code === 200) {
@@ -135,33 +164,105 @@ export default {
         if (!result.data.length) {
           return (this.cartInfoList = []);
         }
-        this.cartInfoList = result.data[0].cartInfoList;
+        this.cartInfoList = result.data[0].cartInfoList || [];
       }
     },
 
-    // 点击删除打开Dialog
+    // 点击删除1条打开Dialog
     showDialogByDelOneCartInfo(skuId) {
       this.visible = true;
       this.skuId = skuId;
+      // 是删除一条,弹出框显示删除一条还是多条
+      this.isDelOne = true;
     },
 
-    // 删除商品
-    async delOneShopCartInfo() {
-      const result = await reqDelOnShopCartInfo(this.skuId);
+    // 批量删除
+    showDialogByDelCartInfo() {
+      this.visible = true;
+      this.isDelOne = false;
+
+      this.cartInfoList.forEach((item) => {
+        // 将选中商品的id存入列表
+        if (item.isChecked) {
+          this.skuIdList.push(item.skuId);
+        } else {
+          // 将没有选中的商品放入列表中
+          this.leftCartInfoList.push(item);
+        }
+      });
+    },
+
+    // 删除一条或多条商品
+    async delShopCartInfo() {
+      // 删除单条
+      if (this.isDelOne) {
+        const result = await reqDelOnShopCartInfo(this.skuId);
+        if (result.code === 200) {
+          this.visible = false;
+          // this.cartInfoList = this.cartInfoList.filter(
+          //   (item) => item.skuId !== this.skuId
+          // );
+          this.getCartInfoList();
+        } else {
+          console.log(result.message);
+        }
+        return;
+      }
+
+      // 删除多条
+      console.log(this.skuIdList);
+      const result = await reqDelSelectedCartInfo({ data: this.skuIdList });
       if (result.code === 200) {
         this.visible = false;
-        this.cartInfoList = this.cartInfoList.filter(
-          (item) => item.skuId !== this.skuId
-        );
+        this.cartInfoList = this.leftCartInfoList;
       } else {
-        console.log(result.message);
+        console.log(result);
       }
     },
 
-    // 删除选中的商品
+    // 更改商品数量
+    async changeSkuNum(type, cartInfo, event) {
+      const { skuId } = cartInfo;
+      let num = 0;
+      switch (type) {
+        case "increment":
+          cartInfo.skuNum++;
+          num++;
+          if (cartInfo.skuNum > 200) {
+            cartInfo.skuNum = 200;
+            num = 0;
+          }
+          break;
+        case "decrement":
+          cartInfo.skuNum--;
+          num--;
+          if (cartInfo.skuNum < 1) {
+            cartInfo.skuNum = 1;
+            num = 0;
+          }
+          break;
+        case "change": {
+          let newSkuNum = event.target.value;
+          let oldSkuNum = cartInfo.skuNum;
+          if (skuNumberReg.test(newSkuNum)) {
+            cartInfo.skuNum = newSkuNum;
+            if (newSkuNum > 200) cartInfo.skuNum = 200;
+            if (newSkuNum < 1) cartInfo.skuNum = 1;
+            num = cartInfo.skuNum - oldSkuNum;
+          } else {
+            cartInfo.skuNum = 1;
+            num = 0;
+          }
+          break;
+        }
+      }
+      if (!num) return;
+      await reqAddOrUpdateShopCart(skuId, num);
+    },
   },
 
   computed: {
+    // 全选按钮
     checkAll: {
       get() {
         return this.cartInfoList.every((item) => item.isChecked);
@@ -178,6 +279,19 @@ export default {
           });
         });
       },
+    },
+
+    // 总数量
+    selectedCount() {
+      return this.cartInfoList.reduce((p, c) => p + c.skuNum * c.isChecked, 0);
+    },
+
+    // 总价格
+    selectedPrice() {
+      return this.cartInfoList.reduce(
+        (p, c) => p + c.skuNum * c.cartPrice * c.isChecked,
+        0
+      );
     },
   },
 

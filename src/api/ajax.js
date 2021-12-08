@@ -3,6 +3,8 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 // 未登陆前设置一个用户Id
 import { getUserTempId } from "@/utils/userabout";
+// 引入store
+import store from "@/store";
 
 const ajax = axios.create({
   baseURL: "/api",
@@ -12,6 +14,12 @@ const ajax = axios.create({
 ajax.interceptors.request.use((config) => {
   // Do something before request is sent
   NProgress.start();
+  // 添加token
+  let token = store.state.user.userInfo.token;
+  if (token) {
+    config.headers.token = token;
+  }
+
   config.headers.userTempId = getUserTempId();
   return config;
 });

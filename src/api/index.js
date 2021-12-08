@@ -41,3 +41,15 @@ export const reqCode = (phone) => ajax.get(`/user/passport/sendCode/${phone}`);
 
 // 注册账号
 export const reqRegister = (user) => ajax.post("/user/passport/register", user);
+
+export const reqDelSelectedCartInfo = (cartInfo) =>
+  ajax.delete("/cart/batchDeleteCart", cartInfo);
+
+// 登录账户
+export const reqUserLogin = (user) => ajax.post("/user/passport/login", user);
+
+// 登出账户
+export const reqLogout = () => ajax.get("/user/passport/logout");
+
+// 结算
+export const reqTrade = () => ajax.get("/order/auth/trade");

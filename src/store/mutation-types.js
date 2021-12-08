@@ -15,3 +15,8 @@ export const DETAIL = {
 export const SHOPCART = {
   SAVE_SHOP_CART: "saveShopCart",
 };
+
+export const USER = {
+  SAVE_USER_INFO: "saveUserInfo",
+  REMOVE_USER_INFO: "removeUserInfo",
+};

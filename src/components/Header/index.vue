@@ -5,7 +5,11 @@
       <div class="container">
         <div class="loginList">
           <p>尚品汇欢迎您！</p>
-          <p>
+          <p v-show="userInfo.name">
+            <span>{{ userInfo.name }}</span>
+            <button @click="logout">退出</button>
+          </p>
+          <p v-show="!userInfo.name">
             <span>请</span>
             <router-link to="/login">登录</router-link>
             <router-link to="/register" class="register">免费注册</router-link>
@@ -52,6 +56,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   name: "Header",
   data() {
@@ -65,6 +70,9 @@ export default {
       this.keyword = "";
     });
   },
+  computed: {
+    ...mapState("user", ["userInfo"]),
+  },
 
   methods: {
     btnSearch() {
@@ -77,6 +85,11 @@ export default {
           keyword: this.keyword || undefined,
         },
       });
+    },
+
+    // 用户登出
+    logout() {
+      this.$store.dispatch("user/userLogout");
     },
   },
 };

@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import routes from "./routes";
+import store from "@/store";
 Vue.use(VueRouter);
 
 const originalPush = VueRouter.prototype.push;
@@ -22,6 +23,14 @@ const router = new VueRouter({
       return { x: 0, y: 0 };
     }
   },
+});
+
+const token = store.state.user.userInfo.token;
+
+router.beforeEach((to, from, next) => {
+  console.log(to.name);
+  if (to.name !== "login" && !token) next({ name: "login" });
+  next();
 });
 
 export default router;
