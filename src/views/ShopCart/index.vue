@@ -10,10 +10,14 @@
         <div class="cart-th5">小计（元）</div>
         <div class="cart-th6">操作</div>
       </div>
-      <div class="cart-body">
+      <div
+        class="cart-body"
+        v-for="(shopCart, index) in shopCartList"
+        :key="index"
+      >
         <ul
           class="cart-list"
-          v-for="cartInfo in cartInfoList"
+          v-for="cartInfo in shopCart.cartInfoList"
           :key="cartInfo.id"
         >
           <li class="cart-list-con1">
@@ -21,7 +25,7 @@
               type="checkbox"
               name="chk_list"
               :checked="cartInfo.isChecked"
-              @change="checkCartInfoStart(cartInfo)"
+              @click="updateIsChecked(cartInfo)"
             />
           </li>
           <li class="cart-list-con2">
@@ -31,13 +35,13 @@
             </div>
           </li>
           <li class="cart-list-con4">
-            <span class="price">{{ cartInfo.cartPrice }}</span>
+            <span class="price">{{ cartInfo.skuPrice }}</span>
           </li>
           <li class="cart-list-con5">
             <a
               href="javascript:void(0)"
               class="mins"
-              @click="changeSkuNum('decrement', cartInfo)"
+              @click="changeNum(-1, cartInfo)"
               >-</a
             >
             <input
@@ -46,12 +50,14 @@
               :value="cartInfo.skuNum"
               minnum="1"
               class="itxt"
-              @change="changeSkuNum('change', cartInfo, $event)"
+              @change="
+                changeNum($event.target.value * 1 - cartInfo.skuNum, cartInfo)
+              "
             />
             <a
               href="javascript:void(0)"
               class="plus"
-              @click="changeSkuNum('increment', cartInfo)"
+              @click="changeNum(1, cartInfo)"
               >+</a
             >
           </li>
@@ -60,9 +66,9 @@
           </li>
           <li class="cart-list-con7">
             <a
-              href="javascript:;"
+              href="#none"
               class="sindelet"
-              @click="showDialogByDelOneCartInfo(cartInfo.skuId)"
+              @click="deleteOneCartList(cartInfo)"
               >删除</a
             >
             <br />
@@ -73,231 +79,174 @@
     </div>
     <div class="cart-tool">
       <div class="select-all">
-        <input class="chooseAll" type="checkbox" v-model="checkAll" />
+        <input class="chooseAll" type="checkbox" v-model="isCheckAll" />
         <span>全选</span>
       </div>
       <div class="option">
-        <a href="javascript:;" @click="showDialogByDelCartInfo"
-          >删除选中的商品</a
-        >
+        <a href="#none" @click="deleteIsCheckCartList">删除选中的商品</a>
         <a href="#none">清除下柜商品</a>
       </div>
       <div class="money-box">
         <div class="chosed">
-          已选择 <span>{{ selectedCount }}</span
+          已选择 <span>{{ checkNum }}</span
           >件商品
         </div>
         <div class="sumprice">
           <em>总价（不含运费） ：</em>
-          <i class="summoney">{{ selectedPrice }}</i>
+          <i class="summoney">{{ allMoney }}</i>
         </div>
         <div class="sumbtn">
-          <a class="sum-btn" href="javascript:;" @click="$router.push('/trade')"
-            >结算</a
-          >
+          <a class="sum-btn" href="###" target="_blank">结算</a>
         </div>
       </div>
     </div>
-
-    <!-- 使用Dialog弹框 -->
-    <Dialog :visible.sync="visible" :isDelOne="isDelOne">
-      <template v-slot:header>
-        <span>提示</span>
-      </template>
-      <template>
-        <p>你真的要删除这{{ isDelOne ? "1条" : "些" }}商品吗？</p>
-      </template>
-      <template #footer>
-        <button class="btn" @click="visible = false">取消</button>
-        <button class="btn primary" @click="delShopCartInfo">确定</button>
-      </template>
-    </Dialog>
   </div>
 </template>
 
 <script>
-import Dialog from "@/components/Dialog";
-import {
-  reqShopCart,
-  reqCheckCart,
-  reqDelOnShopCartInfo,
-  reqDelSelectedCartInfo,
-  reqAddOrUpdateShopCart,
-} from "@/api";
-import { skuNumberReg } from "@/utils/reg";
+import { mapState } from "vuex";
 export default {
   name: "ShopCart",
-  components: {
-    Dialog,
-  },
-
-  data() {
-    return {
-      cartInfoList: [],
-      value: 1,
-      visible: false,
-      skuId: "",
-      isDelOne: false,
-      skuIdList: [], // 批量删除被选中的id
-      leftCartInfoList: [], //剩余未删除商品
-    };
+  mounted() {
+    this.getShopCartList();
   },
 
   methods: {
-    // 更新商品选中状态
-    async checkCartInfoStart(cartInfo) {
-      let isChecked = cartInfo.isChecked ? 0 : 1;
-      const result = await reqCheckCart(cartInfo.skuId, isChecked);
-      if (result.code === 200) {
-        console.log(result);
-      } else {
-        console.log(result.message);
+    // 发送vuex获取购物车请求
+    getShopCartList() {
+      this.$store.dispatch("shopcart/getShopCartList");
+    },
+
+    // 改变购物车数量
+    async changeNum(disNum, cartInfo) {
+      // 变化的量加上现有的量小于1，就不对了
+      if (disNum + cartInfo.skuNum < 1) {
+        // 让最终的量为1
+        disNum = 1 - cartInfo.skuNum;
       }
-      this.getCartInfoList();
-    },
-
-    // 获取cartInfoList购物车列表
-    async getCartInfoList() {
-      const result = await reqShopCart();
-      console.log(result);
-      if (result.code === 200) {
-        if (!result.data.length) {
-          return (this.cartInfoList = []);
-        }
-        this.cartInfoList = result.data[0].cartInfoList || [];
+      try {
+        await this.$store.dispatch("shopcart/addOrUpdateShopCart", {
+          skuId: cartInfo.skuId,
+          skuNum: disNum,
+        });
+        this.getShopCartList();
+      } catch (e) {
+        alert("添加购物车数量失败");
       }
     },
 
-    // 点击删除1条打开Dialog
-    showDialogByDelOneCartInfo(skuId) {
-      this.visible = true;
-      this.skuId = skuId;
-      // 是删除一条,弹出框显示删除一条还是多条
-      this.isDelOne = true;
+    // 点击修改单个单选框状态
+    async updateIsChecked(cartInfo) {
+      try {
+        await this.$store.dispatch("shopcart/updateIsChecked", {
+          skuId: cartInfo.skuId,
+          isChecked: cartInfo.isChecked ? 0 : 1,
+        });
+        this.getShopCartList();
+      } catch (e) {
+        alert("改选选中失败");
+      }
     },
 
-    // 批量删除
-    showDialogByDelCartInfo() {
-      this.visible = true;
-      this.isDelOne = false;
+    // 删除购物车单个商品
+    async deleteOneCartList(cartInfo) {
+      try {
+        await this.$store.dispatch(
+          "shopcart/deleteOneCartList",
+          cartInfo.skuId
+        );
+        alert("删除成功");
+        this.getShopCartList();
+      } catch (e) {
+        alert("删除失败");
+      }
+    },
 
-      this.cartInfoList.forEach((item) => {
-        // 将选中商品的id存入列表
-        if (item.isChecked) {
-          this.skuIdList.push(item.skuId);
-        } else {
-          // 将没有选中的商品放入列表中
-          this.leftCartInfoList.push(item);
-        }
+    // 批量删除购物车
+    async deleteIsCheckCartList() {
+      let skuIdList = [];
+      this.shopCartList.forEach((item) => {
+        item.cartInfoList.forEach((item) => {
+          if (item.isChecked === 1) {
+            skuIdList.push(item.skuId);
+          }
+        });
       });
-    },
+      console.log(skuIdList);
 
-    // 删除一条或多条商品
-    async delShopCartInfo() {
-      // 删除单条
-      if (this.isDelOne) {
-        const result = await reqDelOnShopCartInfo(this.skuId);
-        if (result.code === 200) {
-          this.visible = false;
-          // this.cartInfoList = this.cartInfoList.filter(
-          //   (item) => item.skuId !== this.skuId
-          // );
-          this.getCartInfoList();
-        } else {
-          console.log(result.message);
-        }
-        return;
+      try {
+        await this.$store.dispatch("shopcart/deleteIsCheckCartList", {
+          data: skuIdList,
+        });
+        alert("批量删除成功");
+        this.getShopCartList();
+      } catch (e) {
+        alert("删除失败");
       }
-
-      // 删除多条
-      console.log(this.skuIdList);
-      const result = await reqDelSelectedCartInfo({ data: this.skuIdList });
-      if (result.code === 200) {
-        this.visible = false;
-        this.cartInfoList = this.leftCartInfoList;
-      } else {
-        console.log(result);
-      }
-    },
-
-    // 更改商品数量
-    async changeSkuNum(type, cartInfo, event) {
-      const { skuId } = cartInfo;
-      let num = 0;
-      switch (type) {
-        case "increment":
-          cartInfo.skuNum++;
-          num++;
-          if (cartInfo.skuNum > 200) {
-            cartInfo.skuNum = 200;
-            num = 0;
-          }
-          break;
-        case "decrement":
-          cartInfo.skuNum--;
-          num--;
-          if (cartInfo.skuNum < 1) {
-            cartInfo.skuNum = 1;
-            num = 0;
-          }
-          break;
-        case "change": {
-          let newSkuNum = event.target.value;
-          let oldSkuNum = cartInfo.skuNum;
-          if (skuNumberReg.test(newSkuNum)) {
-            cartInfo.skuNum = newSkuNum;
-            if (newSkuNum > 200) cartInfo.skuNum = 200;
-            if (newSkuNum < 1) cartInfo.skuNum = 1;
-            num = cartInfo.skuNum - oldSkuNum;
-          } else {
-            cartInfo.skuNum = 1;
-            num = 0;
-          }
-          break;
-        }
-      }
-      if (!num) return;
-      await reqAddOrUpdateShopCart(skuId, num);
     },
   },
 
   computed: {
-    // 全选按钮
-    checkAll: {
-      get() {
-        return this.cartInfoList.every((item) => item.isChecked);
-      },
-      set(val) {
-        this.cartInfoList.forEach((item) => {
-          item.isChecked = val ? 1 : 0;
+    ...mapState("shopcart", ["shopCartList"]),
 
-          // 每次一都改变isChecked
-          this.checkCartInfoStart({
-            skuId: item.skuId,
-            // 这个要取反一下，上面的函数也取反了
-            isChecked: 1 - item.isChecked,
-          });
-        });
-      },
-    },
-
-    // 总数量
-    selectedCount() {
-      return this.cartInfoList.reduce((p, c) => p + c.skuNum * c.isChecked, 0);
+    checkNum() {
+      return this.shopCartList.reduce((p, c) => {
+        return (
+          p +
+          c.cartInfoList.reduce((p, c2) => {
+            if (c2.isChecked) {
+              p += c2.skuNum;
+            }
+            return p;
+          }, 0)
+        );
+      }, 0);
     },
 
     // 总价格
-    selectedPrice() {
-      return this.cartInfoList.reduce(
-        (p, c) => p + c.skuNum * c.cartPrice * c.isChecked,
-        0
-      );
+    allMoney() {
+      return this.shopCartList.reduce((p, c) => {
+        return (
+          p +
+          c.cartInfoList.reduce((p, c2) => {
+            if (c2.isChecked) {
+              p += c2.skuNum * c2.skuPrice;
+            }
+            return p;
+          }, 0)
+        );
+      }, 0);
     },
-  },
 
-  // 获取数据
-  mounted() {
-    this.getCartInfoList();
+    // 全选或全不选
+    isCheckAll: {
+      get() {
+        return this.shopCartList.every((item) =>
+          item.cartInfoList.every((item1) => item1.isChecked)
+        );
+      },
+      async set(newVal) {
+        let isChecked = newVal ? 1 : 0;
+        let skuIdList = [];
+        this.shopCartList.forEach((item) => {
+          item.cartInfoList.forEach((item) => {
+            if (item.isChecked !== isChecked) {
+              skuIdList.push(item.skuId);
+            }
+          });
+        });
+
+        try {
+          await this.$store.dispatch("shopcart/updateCartListCheckAll", {
+            isChecked,
+            skuIdList,
+          });
+          this.getShopCartList();
+        } catch (e) {
+          alert("修改失败");
+        }
+      },
+    },
   },
 };
 </script>

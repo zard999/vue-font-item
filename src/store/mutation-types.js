@@ -13,7 +13,7 @@ export const DETAIL = {
 };
 
 export const SHOPCART = {
-  SAVE_SHOP_CART: "saveShopCart",
+  SAVE_SHOP_CART_LIST: "saveShopCartList",
 };
 
 export const USER = {

@@ -7,7 +7,7 @@ export function getUserTempId() {
   // 1. 先从本地存储获取一下
   let userTempId = localStorage.getItem("userTempId");
 
-  // 2. 如果没有的话，就要生成yifen
+  // 2. 如果没有的话，就要生成一份
   if (!userTempId) {
     localStorage.setItem("userTempId", uuidv4());
   }

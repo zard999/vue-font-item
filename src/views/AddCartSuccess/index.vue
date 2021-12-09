@@ -5,7 +5,7 @@
       <div class="goods">
         <div class="left-good">
           <div class="left-pic">
-            <img src="good.skuDefaultImg" />
+            <img :src="skuInfo.skuDefaultImg" />
           </div>
           <div class="right-info">
             <p class="title">
@@ -23,9 +23,7 @@
             @click="$router.back()"
             >查看商品详情</a
           >
-          <a href="javascript:" @click="$router.push('/shopcart')"
-            >去购物车结算 >
-          </a>
+          <router-link to="/shopcart">去购物车结算 > </router-link>
         </div>
       </div>
     </div>

@@ -26,15 +26,23 @@ export const reqAddOrUpdateShopCart = (skuId, skuNum) =>
   ajax.post(`/cart/addToCart/${skuId}/${skuNum}`);
 
 // 获取购物车数据
-export const reqShopCart = () => ajax.get("/cart/cartList");
+export const reqShopCartList = () => ajax.get("/cart/cartList");
 
 // 切换商品选中状态
-export const reqCheckCart = (skuID, isChecked) =>
-  ajax.get(`/cart/checkCart/${skuID}/${isChecked}`);
+export const reqUpdateIsChecked = (skuId, isChecked) =>
+  ajax.get(`/cart/checkCart/${skuId}/${isChecked}`);
 
-// 删除选中商品
-export const reqDelOnShopCartInfo = (skuId) =>
+// 请求修改购物车所有的选中状态
+export const reqUpdateCartListCheckAll = (isChecked, skuIdList) =>
+  ajax.post(`/cart/batchCheckCart/${isChecked}`, skuIdList);
+
+// 删除单个购物车商品
+export const reqDeleteOneCartList = (skuId) =>
   ajax.delete(`/cart/deleteCart/${skuId}`);
+
+// 批量删除多个购物车商品
+export const reqDeleteIsCheckCartList = (obj) =>
+  ajax.delete("/cart/batchDeleteCart", obj);
 
 // 获取验证码
 export const reqGetCode = (phone) =>

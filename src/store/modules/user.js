@@ -5,8 +5,10 @@ import {
   reqGetUserInfo,
   reqUserLogout,
 } from "@/api";
+import { getUserTempId } from "@/utils/userabout";
 import { USER } from "../mutation-types";
 const state = {
+  userTempId: getUserTempId(),
   code: "",
   userInfo: "",
   token: localStorage.getItem("token_key"),
@@ -51,7 +53,7 @@ const actions = {
   },
 
   // 注册
-  async userRegister({ commit }, userInfo) {
+  async userRegister(_, userInfo) {
     const result = await reqUserRegister(userInfo);
     if (result.code === 200) {
       return "ok";

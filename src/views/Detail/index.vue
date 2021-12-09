@@ -92,9 +92,9 @@
             </div>
             <div class="cartWrap">
               <div class="controls">
-                <input autocomplete="off" class="itxt" v-model="count" />
-                <a href="javascript:" class="plus" @click="count++">+</a>
-                <a href="javascript:" class="mins" @click="count--">-</a>
+                <input autocomplete="off" class="itxt" v-model="skuNum" />
+                <a href="javascript:" class="plus" @click="skuNum++">+</a>
+                <a href="javascript:" class="mins" @click="skuNum--">-</a>
               </div>
               <div class="add">
                 <a href="javascript:" @click="addShopCart">加入购物车</a>
@@ -340,12 +340,11 @@ import ImageList from "./ImageList/ImageList";
 import Zoom from "./Zoom/Zoom";
 import { skuNumberReg } from "@/utils/reg";
 import { mapGetters } from "vuex";
-import { reqAddOrUpdateShopCart } from "@/api";
 export default {
   name: "Detail",
   data() {
     return {
-      count: 1,
+      skuNum: 1,
     };
   },
   props: {
@@ -373,18 +372,20 @@ export default {
 
     // 添加到购物车
     async addShopCart() {
-      // 不用三连环,因为是服务器添加，不关本地的事
-      const result = await reqAddOrUpdateShopCart(this.id, this.count);
-      if (result.code === 200) {
+      try {
+        await this.$store.dispatch("shopcart/addOrUpdateShopCart", {
+          skuId: this.id,
+          skuNum: this.skuNum,
+        });
         alert("购物车添加成功");
         sessionStorage.setItem("SKUINFO_KEY", JSON.stringify(this.skuInfo));
         this.$router.push({
           name: "addcartsuccess",
           query: {
-            skuNum: this.count,
+            skuNum: this.skuNum,
           },
         });
-      } else {
+      } catch (e) {
         console.log("购物车添加失败");
       }
     },
@@ -396,13 +397,13 @@ export default {
   },
 
   watch: {
-    count(newValue) {
+    skuNum(newValue) {
       if (skuNumberReg.test(+newValue)) {
-        this.count = +newValue;
+        this.skuNum = +newValue;
       } else if (+newValue > 200) {
-        this.count = 200;
+        this.skuNum = 200;
       } else {
-        this.count = 1;
+        this.skuNum = 1;
       }
     },
   },
