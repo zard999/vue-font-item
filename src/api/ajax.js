@@ -14,13 +14,12 @@ const ajax = axios.create({
 ajax.interceptors.request.use((config) => {
   // Do something before request is sent
   NProgress.start();
-  // 添加token
-  let token = store.state.user.userInfo.token;
+  config.headers.userTempId = getUserTempId();
+
+  let token = store.state.user.token;
   if (token) {
     config.headers.token = token;
   }
-
-  config.headers.userTempId = getUserTempId();
   return config;
 });
 

@@ -17,6 +17,9 @@ export const SHOPCART = {
 };
 
 export const USER = {
+  SAVE_CODE: "saveCode",
+  SAVE_TOKEN: "saveToken",
   SAVE_USER_INFO: "saveUserInfo",
+  REMOVE_TOKEN: "removeToken",
   REMOVE_USER_INFO: "removeUserInfo",
 };

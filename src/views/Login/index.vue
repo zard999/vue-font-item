@@ -14,7 +14,7 @@
           </ul>
 
           <div class="content">
-            <form @submit.prevent="userLogin">
+            <form action="##">
               <div class="input-text clearFix">
                 <span></span>
                 <input
@@ -38,7 +38,9 @@
                 </label>
                 <span class="forget">忘记密码？</span>
               </div>
-              <button class="btn">登&nbsp;&nbsp;录</button>
+              <button class="btn" @click.prevent="login">
+                登&nbsp;&nbsp;录
+              </button>
             </form>
 
             <div class="call clearFix">
@@ -79,17 +81,22 @@ export default {
   name: "Login",
   data() {
     return {
-      phone: "",
-      password: "",
+      phone: "13700000000",
+      password: "111111",
     };
   },
-
   methods: {
-    async userLogin() {
+    async login() {
       const { phone, password } = this;
-      await this.$store.dispatch("user/getUserInfo", { phone, password });
-      // 如果要是登录成功的话则跳转到主页面
-      this.$router.push("/home");
+      if (phone && password) {
+        try {
+          await this.$store.dispatch("user/userLogin", { phone, password });
+          alert("登录成功，即将跳转到首页");
+          this.$router.push("/");
+        } catch (e) {
+          alert("登录失败");
+        }
+      }
     },
   },
 };

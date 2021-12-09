@@ -5,98 +5,44 @@
       <h3>
         注册新用户
         <span class="go"
-          >我有账号，去 <a href="login.html" target="_blank">登陆</a>
+          >我有账号，去 <router-link to="/login">登陆</router-link>
         </span>
       </h3>
-      <ValidationObserver v-slot="{ handleSubmit }">
-        <form @submit.prevent="handleSubmit(onSubmit)">
-          <ValidationProvider
-            rules="phoneRequired|phoneNumber"
-            mode="lazy"
-            tag="div"
-            v-slot="{ errors }"
-          >
-            <div class="content">
-              <label>手机号:</label>
-              <input
-                type="text"
-                placeholder="请输入你的手机号"
-                v-model="user.phone"
-              />
-              <span class="error-msg">{{ errors[0] }}</span>
-            </div>
-          </ValidationProvider>
-          <ValidationProvider
-            rules="codeRequired|codeNumber"
-            mode="lazy"
-            tag="div"
-            v-slot="{ errors }"
-          >
-            <div class="content">
-              <label>验证码:</label>
-              <input
-                type="text"
-                placeholder="请输入验证码"
-                v-model="user.code"
-              />
-              <input
-                type="button"
-                value="发送验证码"
-                @click="getCode"
-                :disabled="isSend"
-              />
-              <span class="error-msg">{{ errors[0] }}</span>
-            </div>
-          </ValidationProvider>
-          <ValidationProvider
-            rules="passRequired|passNumber"
-            mode="lazy"
-            tag="div"
-            v-slot="{ errors }"
-          >
-            <div class="content">
-              <label>登录密码:</label>
-              <input
-                type="text"
-                placeholder="请输入你的登录密码"
-                v-model="user.password"
-              />
-              <span class="error-msg">{{ errors[0] }}</span>
-            </div>
-          </ValidationProvider>
-          <ValidationProvider
-            :rules="`passRequired|passNumber|rePassNumber:${user.password}`"
-            mode="lazy"
-            tag="div"
-            v-slot="{ errors }"
-          >
-            <div class="content">
-              <label>确认密码:</label>
-              <input
-                type="text"
-                placeholder="请输入确认密码"
-                v-model="user.rePassword"
-              />
-              <span class="error-msg">{{ errors[0] }}</span>
-            </div>
-          </ValidationProvider>
-          <ValidationProvider
-            rules="agree"
-            mode="lazy"
-            tag="div"
-            v-slot="{ errors }"
-          >
-            <div class="controls">
-              <input name="m1" type="checkbox" v-model="user.isCheck" />
-              <span>同意协议并注册《尚品汇用户协议》</span>
-              <span class="error-msg">{{ errors[0] }}</span>
-            </div>
-          </ValidationProvider>
-          <div class="btn">
-            <button>完成注册</button>
-          </div>
-        </form>
-      </ValidationObserver>
+      <div class="content">
+        <label>手机号:</label>
+        <input type="text" placeholder="请输入你的手机号" v-model="phone" />
+        <span class="error-msg">错误提示信息</span>
+      </div>
+      <div class="content">
+        <label>验证码:</label>
+        <input type="text" placeholder="请输入验证码" v-model="code" />
+        <button style="width: 100px; height: 38px" @click="getCode">
+          获取验证码
+        </button>
+        <span class="error-msg">错误提示信息</span>
+      </div>
+      <div class="content">
+        <label>登录密码:</label>
+        <input
+          type="text"
+          placeholder="请输入你的登录密码"
+          v-model="password"
+        />
+        <span class="error-msg">错误提示信息</span>
+      </div>
+      <div class="content">
+        <label>确认密码:</label>
+        <input type="text" placeholder="请输入确认密码" v-model="password2" />
+        <span class="error-msg">错误提示信息</span>
+      </div>
+      <div class="controls">
+        <input name="m1" type="checkbox" v-model="isCheck" />
+        <span>同意协议并注册《尚品汇用户协议》</span>
+        <span class="error-msg">错误提示信息</span>
+      </div>
+      <div class="btn">
+        <button @click="register">完成注册</button>
+      </div>
     </div>
 
     <!-- 底部 -->
@@ -118,102 +64,50 @@
 </template>
 
 <script>
-import { ValidationObserver, ValidationProvider, extend } from "vee-validate";
-import { required } from "vee-validate/dist/rules";
-import { phoneReg, codeReg, passReg } from "@/utils/reg";
-import { reqCode, reqRegister } from "@/api";
-// 1. 手机号验证
-extend("phoneRequired", {
-  ...required,
-  message: "请输入手机号",
-});
-
-extend("phoneNumber", {
-  validate: (val) => phoneReg.test(val),
-  message: "手机号错误，应该为11位数字",
-});
-
-// 2. 验证码
-extend("codeRequired", {
-  ...required,
-  message: "请输入验证码",
-});
-
-extend("codeNumber", {
-  validate: (val) => codeReg.test(val),
-  message: "验证码错误，应该为6位数字",
-});
-
-// 3. 登录密码
-extend("passRequired", {
-  ...required,
-  message: "请输入登录密码",
-});
-
-extend("passNumber", {
-  validate: (val) => passReg.test(val),
-  message: "登录密码错误，应该为6-18位数字大小写字母组成",
-});
-
-// 4. 确认密码
-extend("rePassNumber", {
-  validate: (val, { password }) => password === val,
-  message: "确认密码和上一次密码不一致，请检查",
-  params: ["password"],
-});
-
-// 5. 勾选同意项
-extend("agree", {
-  validate: (val) => val,
-  message: "请勾选同意项",
-});
-
 export default {
   name: "Register",
   data() {
     return {
-      user: {
-        phone: "",
-        password: "",
-        rePassword: "",
-        code: "",
-        isCheck: false,
-      },
-      isSend: false,
+      phone: "",
+      code: "",
+      password: "",
+      password2: "",
+      isCheck: true,
     };
   },
 
   methods: {
-    // 表单验证,完成注册
-    async onSubmit() {
-      const { phone, password, code } = this.user;
-      const result = await reqRegister({ phone, password, code });
-      console.log(result);
-      if (result.code !== 200) {
-        return alert("注册失败");
-      }
-      alert("注册完成");
-      this.$router.push("/login");
-    },
-
     // 获取验证码
     async getCode() {
-      if (!phoneReg.test(this.user.phone)) {
-        return alert("手机号不合法，请重新输入");
-      }
-      const result = await reqCode(this.user.phone);
-      if (result.code === 200) {
-        this.isSend = true;
-        this.user.code = result.data;
-      } else {
-        console.log(result.message);
+      const { phone } = this;
+      if (phone) {
+        try {
+          const result = await this.$store.dispatch("user/getCode", phone);
+          this.code = result;
+        } catch (e) {
+          alert("获取验证码失败");
+        }
       }
     },
-  },
 
-  components: {
-    ValidationObserver,
-    ValidationProvider,
+    // 用户注册
+    async register() {
+      const { phone, password, password2, code } = this;
+      if (phone && password && password2 && password === password2) {
+        try {
+          console.log(phone);
+          await this.$store.dispatch("user/userRegister", {
+            phone,
+            password,
+            code,
+          });
+          alert("注册成功，准备跳转到登录页面");
+          this.$router.push("/login");
+        } catch (e) {
+          alert("注册失败");
+        }
+      }
+    },
   },
 };
 </script>

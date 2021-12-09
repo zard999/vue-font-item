@@ -25,12 +25,32 @@ const router = new VueRouter({
   },
 });
 
-const token = store.state.user.userInfo.token;
-
-router.beforeEach((to, from, next) => {
-  console.log(to.name);
-  if (to.name !== "login" && !token) next({ name: "login" });
-  next();
+router.beforeEach(async (to, from, next) => {
+  let { token, userInfo } = store.state.user;
+  // 如果token存在
+  if (token) {
+    // 如果要去的路径为login，则跳转到首页
+    if (to.path === "/login") {
+      next("/");
+    } else {
+      // 如果userInfo存在，则任意页面都可以跳转
+      if (userInfo.name) {
+        next();
+      } else {
+        try {
+          await store.dispatch("user/getUserInfo");
+          next();
+        } catch (e) {
+          // 清除token并跳转到login页面
+          store.dispatch("user/clearToken");
+          alert("token已失效，即将跳转登录页面");
+          next("/login");
+        }
+      }
+    }
+  } else {
+    next();
+  }
 });
 
 export default router;

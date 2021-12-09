@@ -37,19 +37,19 @@ export const reqDelOnShopCartInfo = (skuId) =>
   ajax.delete(`/cart/deleteCart/${skuId}`);
 
 // 获取验证码
-export const reqCode = (phone) => ajax.get(`/user/passport/sendCode/${phone}`);
+export const reqGetCode = (phone) =>
+  ajax.get(`/user/passport/sendCode/${phone}`);
 
-// 注册账号
-export const reqRegister = (user) => ajax.post("/user/passport/register", user);
+// 注册
+export const reqUserRegister = (userInfo) =>
+  ajax.post("/user/passport/register", userInfo);
 
-export const reqDelSelectedCartInfo = (cartInfo) =>
-  ajax.delete("/cart/batchDeleteCart", cartInfo);
+// 登录
+export const reqUserLogin = (userInfo) =>
+  ajax.post("/user/passport/login", userInfo);
 
-// 登录账户
-export const reqUserLogin = (user) => ajax.post("/user/passport/login", user);
+// 获取用户信息
+export const reqGetUserInfo = () => ajax.get("/user/passport/auth/getUserInfo");
 
-// 登出账户
-export const reqLogout = () => ajax.get("/user/passport/logout");
-
-// 结算
-export const reqTrade = () => ajax.get("/order/auth/trade");
+// 退出登录
+export const reqUserLogout = () => ajax.get("/user/passport/logout");

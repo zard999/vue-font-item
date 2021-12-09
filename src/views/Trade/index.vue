@@ -125,15 +125,8 @@
 </template>
 
 <script>
-import { reqTrade } from "@/api";
 export default {
   name: "Trade",
-  async mounted() {
-    const result = await reqTrade();
-    if (result.code === 200) {
-      console.log(result.data);
-    }
-  },
 };
 </script>
 
