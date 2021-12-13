@@ -21,7 +21,6 @@ const actions = {
   // 添加购物车或者更改数量
   async addOrUpdateShopCart(_, { skuId, skuNum }) {
     const result = await reqAddOrUpdateShopCart(skuId, skuNum);
-    console.log(result);
     if (result.code === 200) {
       return "ok";
     } else {

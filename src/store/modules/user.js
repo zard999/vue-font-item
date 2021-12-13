@@ -4,6 +4,7 @@ import {
   reqUserLogin,
   reqGetUserInfo,
   reqUserLogout,
+  reqUserAddressList,
 } from "@/api";
 import { getUserTempId } from "@/utils/userabout";
 import { USER } from "../mutation-types";
@@ -12,6 +13,7 @@ const state = {
   code: "",
   userInfo: "",
   token: localStorage.getItem("token_key"),
+  userAddressList: [],
 };
 
 const mutations = {
@@ -37,6 +39,11 @@ const mutations = {
   // 清除userInfo
   [USER.REMOVE_USER_INFO](state) {
     state.userInfo = "";
+  },
+
+  // 存储用户信息
+  [USER.SAVE_USER_ADDRESS_LIST](state, userAddressList) {
+    state.userAddressList = userAddressList;
   },
 };
 
@@ -104,6 +111,14 @@ const actions = {
       return "ok";
     } else {
       return Promise.reject(new Error("failed"));
+    }
+  },
+
+  // 获取用户地址
+  async getUserAddressList({ commit }) {
+    const result = await reqUserAddressList();
+    if (result.code === 200) {
+      commit(USER.SAVE_USER_ADDRESS_LIST, result.data);
     }
   },
 };

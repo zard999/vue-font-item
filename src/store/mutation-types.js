@@ -20,6 +20,11 @@ export const USER = {
   SAVE_CODE: "saveCode",
   SAVE_TOKEN: "saveToken",
   SAVE_USER_INFO: "saveUserInfo",
+  SAVE_USER_ADDRESS_LIST: "userAddressList",
   REMOVE_TOKEN: "removeToken",
   REMOVE_USER_INFO: "removeUserInfo",
+};
+
+export const TRADE = {
+  SAVE_TRADE_INFO: "tradeInfo",
 };

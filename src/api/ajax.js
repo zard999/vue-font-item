@@ -5,7 +5,7 @@ import "nprogress/nprogress.css";
 import store from "@/store";
 
 const ajax = axios.create({
-  baseURL: "/api",
+  baseURL: "/api", // 配置公共请求路径或转发标识
   timeout: 10000,
 });
 

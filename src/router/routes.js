@@ -7,6 +7,22 @@ import AddCartSuccess from "@/views/AddCartSuccess";
 import ShopCart from "@/views/ShopCart";
 export default [
   {
+    // 交易页面
+    path: "/paysuccess",
+    component: () => import("@/views/PaySuccess"),
+  },
+  {
+    // 交易页面
+    path: "/pay",
+    component: () => import("@/views/Pay"),
+  },
+  {
+    // 交易页面
+    path: "/trade",
+    component: () => import("@/views/Trade"),
+  },
+  {
+    // 主页
     path: "/home",
     name: "home",
     component: Home,

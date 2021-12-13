@@ -1,6 +1,6 @@
 <template>
   <!--banner轮播-->
-  <div class="swiper-container" id="mySwiper">
+  <div class="swiper-container" id="mySwiper" ref="imgSwiper">
     <div class="swiper-wrapper">
       <div class="swiper-slide" v-for="banner in bannerList" :key="banner.id">
         <img :src="banner.imgUrl" />
@@ -33,7 +33,7 @@ export default {
       // 等到页面渲染完毕，nextTick可以获取页面中最新的数据
       this.$nextTick(() => {
         // bannerList数组从0到有真正的数据
-        new Swiper(".swiper-container", {
+        new Swiper(this.$refs.imgSwiper, {
           // direction: "vertical", // 垂直切换选项
           loop: true, // 循环模式选项
           // 如果需要分页器

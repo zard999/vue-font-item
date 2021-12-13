@@ -33,10 +33,15 @@
 <script>
 export default {
   name: "AddCartSuccess",
-  computed: {
-    skuInfo() {
-      return JSON.parse(sessionStorage.getItem("SKUINFO_KEY"));
-    },
+  data() {
+    return {
+      skuInfo: {},
+      skuNum: "",
+    };
+  },
+  beforeMount() {
+    this.skuNum = this.$route.params.skuNum;
+    this.skuInfo = JSON.parse(sessionStorage.getItem("skuInfo_key"));
   },
 };
 </script>

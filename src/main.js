@@ -10,6 +10,8 @@ import "swiper/css/swiper.min.css";
 // 开启mock服务器
 import "./mock/mockServe";
 
+import * as API from "@/api";
+
 Vue.config.productionTip = false;
 /**
  * 因为TypeNav不止home页面用，search页面也用，所以注册成全局组件
@@ -23,6 +25,7 @@ new Vue({
   store,
   beforeCreate() {
     Vue.prototype.$bus = this;
+    Vue.prototype.$API = API;
   },
   render: (h) => h(App),
 }).$mount("#app");

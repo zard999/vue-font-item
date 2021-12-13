@@ -378,7 +378,7 @@ export default {
           skuNum: this.skuNum,
         });
         alert("购物车添加成功");
-        sessionStorage.setItem("SKUINFO_KEY", JSON.stringify(this.skuInfo));
+        sessionStorage.setItem("skuInfo_key", JSON.stringify(this.skuInfo));
         this.$router.push({
           name: "addcartsuccess",
           query: {
