@@ -65,14 +65,14 @@
             <span class="sum">{{ cartInfo.skuNum * cartInfo.cartPrice }}</span>
           </li>
           <li class="cart-list-con7">
-            <a
-              href="#none"
-              class="sindelet"
+            <el-button
+              type="danger"
+              size="mini"
+              icon="el-icon-delete"
               @click="deleteOneCartList(cartInfo)"
-              >删除</a
+              >删除</el-button
             >
             <br />
-            <a href="#none">移到收藏</a>
           </li>
         </ul>
       </div>
@@ -83,8 +83,13 @@
         <span>全选</span>
       </div>
       <div class="option">
-        <a href="#none" @click="deleteIsCheckCartList">删除选中的商品</a>
-        <a href="#none">清除下柜商品</a>
+        <el-button
+          type="danger"
+          icon="el-icon-delete"
+          size="mini"
+          @click="deleteIsCheckCartList"
+          >删除选中的商品</el-button
+        >
       </div>
       <div class="money-box">
         <div class="chosed">
@@ -96,7 +101,11 @@
           <i class="summoney">{{ allMoney }}</i>
         </div>
         <div class="sumbtn">
-          <router-link to="/trade" class="sum-btn">结算</router-link>
+          <router-link to="/trade"
+            ><el-button type="danger" icon="el-icon-shopping-bag-2"
+              >结算</el-button
+            ></router-link
+          >
         </div>
       </div>
     </div>
@@ -150,16 +159,33 @@ export default {
 
     // 删除购物车单个商品
     async deleteOneCartList(cartInfo) {
-      try {
-        await this.$store.dispatch(
-          "shopcart/deleteOneCartList",
-          cartInfo.skuId
-        );
-        alert("删除成功");
-        this.getShopCartList();
-      } catch (e) {
-        alert("删除失败");
-      }
+      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        beforeClose: async (action, instance, done) => {
+          if (action === "confirm") {
+            await this.$store.dispatch(
+              "shopcart/deleteOneCartList",
+              cartInfo.skuId
+            );
+            this.getShopCartList();
+            this.$message({
+              type: "success",
+              message: "删除成功!",
+            });
+            done();
+          } else if (action === "cancel") {
+            this.$message({
+              type: "info",
+              message: "已取消删除",
+            });
+            done();
+          }
+        },
+      })
+        .then(() => {})
+        .catch(() => {});
     },
 
     // 批量删除购物车
@@ -172,17 +198,33 @@ export default {
           }
         });
       });
-      console.log(skuIdList);
 
-      try {
-        await this.$store.dispatch("shopcart/deleteIsCheckCartList", {
-          data: skuIdList,
-        });
-        alert("批量删除成功");
-        this.getShopCartList();
-      } catch (e) {
-        alert("删除失败");
-      }
+      this.$confirm("此操作将永久删除这些文件, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        beforeClose: async (action, instance, done) => {
+          if (action === "confirm") {
+            await this.$store.dispatch("shopcart/deleteIsCheckCartList", {
+              data: skuIdList,
+            });
+            this.getShopCartList();
+            this.$message({
+              type: "success",
+              message: "删除成功!",
+            });
+            done();
+          } else if (action === "cancel") {
+            this.$message({
+              type: "info",
+              message: "已取消删除",
+            });
+            done();
+          }
+        },
+      })
+        .then(() => {})
+        .catch(() => {});
     },
   },
 
@@ -431,7 +473,6 @@ export default {
           text-align: center;
           font-size: 18px;
           font-family: "Microsoft YaHei";
-          background: #e1251b;
           overflow: hidden;
         }
       }

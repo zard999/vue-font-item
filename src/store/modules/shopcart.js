@@ -49,7 +49,6 @@ const actions = {
   //   更新所有的选中状态
   async updateCartListCheckAll(_, { isChecked, skuIdList }) {
     const result = await reqUpdateCartListCheckAll(isChecked, skuIdList);
-    console.log(result);
     if (result.code === 200) {
       return "ok";
     } else {
@@ -70,7 +69,6 @@ const actions = {
   //   批量删除多个购物车商品
   async deleteIsCheckCartList(_, obj) {
     const result = await reqDeleteIsCheckCartList(obj);
-    console.log(result);
     if (result.code === 200) {
       return "ok";
     } else {

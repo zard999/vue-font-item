@@ -26,7 +26,7 @@
               <div class="input-text clearFix">
                 <span class="pwd"></span>
                 <input
-                  type="text"
+                  type="password"
                   placeholder="请输入密码"
                   v-model="password"
                 />
@@ -38,9 +38,9 @@
                 </label>
                 <span class="forget">忘记密码？</span>
               </div>
-              <button class="btn" @click.prevent="login">
-                登&nbsp;&nbsp;录
-              </button>
+              <el-button class="btn" type="danger" @click.prevent="login"
+                >登&nbsp;&nbsp;录</el-button
+              >
             </form>
 
             <div class="call clearFix">
@@ -59,7 +59,7 @@
       </div>
     </div>
     <!-- 底部 -->
-    <div class="copyright">
+    <div class="copyright" v-if="!this.$route.meta.isHiddenFooter">
       <ul>
         <li>关于我们</li>
         <li>联系我们</li>
@@ -86,15 +86,17 @@ export default {
     };
   },
   methods: {
+    // 请求登录
     async login() {
       const { phone, password } = this;
       if (phone && password) {
         try {
           await this.$store.dispatch("user/userLogin", { phone, password });
-          alert("登录成功，即将跳转到首页");
-          this.$router.push("/");
+          let redirect = this.$route.query.redirect || "/";
+          this.$message.success("登录成功");
+          this.$router.push(redirect);
         } catch (e) {
-          alert("登录失败");
+          this.$message.error("登录失败");
         }
       }
     },
@@ -173,7 +175,7 @@ export default {
               width: 37px;
               height: 32px;
               border: 1px solid #ccc;
-              background: url(./images/icons.png) no-repeat -10px -201px;
+              background: url("../../assets/icons.png") no-repeat -10px -201px;
               box-sizing: border-box;
               border-radius: 2px 0 0 2px;
             }
@@ -212,18 +214,15 @@ export default {
           }
 
           .btn {
-            background-color: #e1251b;
             padding: 6px;
             border-radius: 0;
             font-size: 16px;
             font-family: 微软雅黑;
             word-spacing: 4px;
-            border: 1px solid #e1251b;
             color: #fff;
             width: 100%;
             height: 36px;
             margin-top: 25px;
-            outline: none;
           }
         }
 

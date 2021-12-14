@@ -1,25 +1,61 @@
 import Home from "@/views/Home";
 import Login from "@/views/Login";
-import Register from "@/views/Register";
-import Search from "@/views/Search";
-import Detail from "@/views/Detail";
-import AddCartSuccess from "@/views/AddCartSuccess";
-import ShopCart from "@/views/ShopCart";
+
 export default [
+  {
+    // 个人中心
+    path: "/center",
+    component: () => import("@/views/Center"),
+    children: [
+      {
+        path: "",
+        redirect: "myorder",
+      },
+      {
+        path: "myorder",
+        component: () => import("@/views/Center/MyOrder"),
+      },
+      {
+        path: "grouporder",
+        component: () => import("@/views/Center/GroupOrder"),
+      },
+    ],
+  },
   {
     // 交易页面
     path: "/paysuccess",
     component: () => import("@/views/PaySuccess"),
+    beforeEnter: (to, from, next) => {
+      if (from.path === "/pay") {
+        next();
+      } else {
+        next("/");
+      }
+    },
   },
   {
     // 交易页面
     path: "/pay",
     component: () => import("@/views/Pay"),
+    beforeEnter: (to, from, next) => {
+      if (from.path === "/trade") {
+        next();
+      } else {
+        next("/");
+      }
+    },
   },
   {
     // 交易页面
     path: "/trade",
     component: () => import("@/views/Trade"),
+    beforeEnter: (to, from, next) => {
+      if (from.path === "/shopcart") {
+        next();
+      } else {
+        next("/");
+      }
+    },
   },
   {
     // 主页
@@ -39,7 +75,7 @@ export default [
   {
     path: "/register",
     name: "register",
-    component: Register,
+    component: () => import("@/views/Register"),
     meta: {
       isHiddenFooter: true,
     },
@@ -47,25 +83,35 @@ export default [
   {
     path: "/search",
     name: "search",
-    component: Search,
+    component: () => import("@/views/Search"),
   },
+  // 详情
   {
     path: "/detail/:id",
     name: "detail",
-    component: Detail,
+    component: () => import("@/views/Detail"),
     props: true,
   },
   // 添加到购物车
   {
     path: "/addcartsuccess",
     name: "addcartsuccess",
-    component: AddCartSuccess,
+    component: () => import("@/views/AddCartSuccess"),
+    beforeEnter: (to, from, next) => {
+      let skuNum = to.query.skuNum;
+      let skuInfo = sessionStorage.getItem("skuInfo_key");
+      if (skuNum && skuInfo) {
+        next();
+      } else {
+        next("/");
+      }
+    },
   },
   // 购物车
   {
     path: "/shopcart",
     name: "shopcart",
-    component: ShopCart,
+    component: () => import("@/views/ShopCart"),
   },
   {
     path: "/",

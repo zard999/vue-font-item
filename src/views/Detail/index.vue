@@ -97,7 +97,12 @@
                 <a href="javascript:" class="mins" @click="skuNum--">-</a>
               </div>
               <div class="add">
-                <a href="javascript:" @click="addShopCart">加入购物车</a>
+                <el-button
+                  type="danger"
+                  icon="el-icon-shopping-cart-full"
+                  @click="addShopCart"
+                  >加入购物车</el-button
+                >
               </div>
             </div>
           </div>
@@ -377,7 +382,11 @@ export default {
           skuId: this.id,
           skuNum: this.skuNum,
         });
-        alert("购物车添加成功");
+        this.$message({
+          showClose: true,
+          message: "购物车添加成功",
+          type: "success",
+        });
         sessionStorage.setItem("skuInfo_key", JSON.stringify(this.skuInfo));
         this.$router.push({
           name: "addcartsuccess",
@@ -386,7 +395,11 @@ export default {
           },
         });
       } catch (e) {
-        console.log("购物车添加失败");
+        this.$message({
+          showClose: true,
+          message: "购物车添加失败",
+          type: "error",
+        });
       }
     },
   },
@@ -621,7 +634,6 @@ export default {
               float: left;
 
               a {
-                background-color: #e1251b;
                 padding: 0 25px;
                 font-size: 16px;
                 color: #fff;

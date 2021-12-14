@@ -16,9 +16,7 @@
       <div class="content">
         <label>验证码:</label>
         <input type="text" placeholder="请输入验证码" v-model="code" />
-        <button style="width: 100px; height: 38px" @click="getCode">
-          获取验证码
-        </button>
+        <el-button type="info" @click="getCode">获取验证码</el-button>
         <span class="error-msg">错误提示信息</span>
       </div>
       <div class="content">
@@ -46,7 +44,7 @@
     </div>
 
     <!-- 底部 -->
-    <div class="copyright">
+    <div class="copyright" v-if="!this.$route.meta.isHiddenFooter">
       <ul>
         <li>关于我们</li>
         <li>联系我们</li>

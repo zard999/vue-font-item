@@ -77,3 +77,36 @@ export const reqTradeInfo = () => {
     method: "get",
   });
 };
+
+// 提交订单
+export const reqSubmitOrder = (tradeNo, tradeInfo) => {
+  return ajax({
+    url: `/order/auth/submitOrder?tradeNo=${tradeNo}`,
+    method: "post",
+    data: tradeInfo,
+  });
+};
+
+// 获取支付订单信息
+export const reqPayOrderInfo = (orderId) => {
+  return ajax({
+    url: `/payment/weixin/createNative/${orderId}`,
+    method: "get",
+  });
+};
+
+// 检查订单是否支付完成
+export const reqPayStatus = (orderId) => {
+  return ajax({
+    url: `/payment/weixin/queryPayStatus/${orderId}`,
+    method: "get",
+  });
+};
+
+// 获取订单列表
+export const reqMyOrderInfo = (page, limit) => {
+  return ajax({
+    url: `/order/auth/${page}/${limit}`,
+    method: "get",
+  });
+};

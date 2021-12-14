@@ -9,8 +9,17 @@ import County from "./components/Carousel";
 import "swiper/css/swiper.min.css";
 // 开启mock服务器
 import "./mock/mockServe";
-
+// API请求
 import * as API from "@/api";
+// 图片懒加载
+import "@/plugins/lazyload";
+import { Button, Message, MessageBox } from "element-ui";
+Vue.use(Button);
+Vue.prototype.$msgbox = MessageBox;
+Vue.prototype.$alert = MessageBox.alert;
+Vue.prototype.$confirm = MessageBox.confirm;
+Vue.prototype.$prompt = MessageBox.prompt;
+Vue.prototype.$message = Message;
 
 Vue.config.productionTip = false;
 /**

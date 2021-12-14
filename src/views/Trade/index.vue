@@ -108,7 +108,9 @@
       </div>
     </div>
     <div class="sub clearFix">
-      <router-link class="subBtn" to="/pay">提交订单</router-link>
+      <el-button type="danger" class="subBtn" @click="submitOrder"
+        >提交订单</el-button
+      >
     </div>
   </div>
 </template>
@@ -143,6 +145,42 @@ export default {
       userAddressList.forEach((item) => (item.isDefault = "0"));
       address.isDefault = "1";
     },
+
+    // 提交订单
+    async submitOrder() {
+      let tradeNo = this.tradeInfo.tradeNo;
+      let tradeInfo = {
+        consignee: this.defaultAddress.consignee,
+        consigneeTel: this.defaultAddress.phoneNum,
+        deliveryAddress: this.defaultAddress.fullAddress,
+        paymentWay: "ONLINE",
+        orderComment: this.message,
+        orderDetailList: this.tradeInfo.detailArrayList,
+      };
+      try {
+        const result = await this.$API.reqSubmitOrder(tradeNo, tradeInfo);
+        if (result.code === 200) {
+          this.$message({
+            showClose: true,
+            message: "提交订单成功",
+            type: "success",
+          });
+          this.$router.push("/pay?orderId=" + result.data);
+        } else {
+          this.$message({
+            showClose: true,
+            message: "提交订单失败",
+            type: "error",
+          });
+        }
+      } catch (error) {
+        this.$message({
+          showClose: true,
+          message: "请求提交订单失败",
+          type: "error",
+        });
+      }
+    },
   },
 
   computed: {
@@ -152,6 +190,9 @@ export default {
     }),
 
     defaultAddress() {
+      console.log(111); // 会执行两次，
+      // 因为一开始从vuex中拿到的是空数据，会执行一次，异步请求后拿到数据又会执行一次
+      // vuex也是响应式的
       return this.userAddressList.find((item) => item.isDefault === "1") || {};
     },
   },
@@ -395,12 +436,10 @@ export default {
     .subBtn {
       float: right;
       width: 164px;
-      height: 56px;
+      height: 60px;
       font: 700 18px "微软雅黑";
-      line-height: 56px;
       text-align: center;
       color: #fff;
-      background-color: #e1251b;
     }
   }
 }

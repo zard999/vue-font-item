@@ -49,7 +49,18 @@ router.beforeEach(async (to, from, next) => {
       }
     }
   } else {
-    next();
+    // 代表没登录过
+    let target = to.path;
+    if (
+      target.indexOf("/trade") === 0 ||
+      target.startsWith("/pay") ||
+      target.includes("/center")
+    ) {
+      // 携带想去的路径
+      next("/login?redirect=" + target);
+    } else {
+      next();
+    }
   }
 });
 
