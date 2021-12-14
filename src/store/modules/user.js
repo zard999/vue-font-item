@@ -72,7 +72,6 @@ const actions = {
   // 登录
   async userLogin({ commit }, userInfo) {
     const result = await reqUserLogin(userInfo);
-    console.log(result);
     if (result.code === 200) {
       commit(USER.SAVE_TOKEN, result.data.token);
       // 自动登录

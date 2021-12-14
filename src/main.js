@@ -13,6 +13,7 @@ import "./mock/mockServe";
 import * as API from "@/api";
 // 图片懒加载
 import "@/plugins/lazyload";
+import "@/plugins/validate";
 import { Button, Message, MessageBox } from "element-ui";
 Vue.use(Button);
 Vue.prototype.$msgbox = MessageBox;
