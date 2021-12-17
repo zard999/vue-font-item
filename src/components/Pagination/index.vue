@@ -6,7 +6,7 @@
     <button v-show="startAndEnd.start > 1" @click="changePageNo(1)">1</button>
     <span v-show="startAndEnd.start > 2">...</span>
     <button
-      v-for="(_, index) in continues > totalPage ? totalPage : continues"
+      v-for="(_, index) in continueNoArr"
       :key="_"
       :class="{ active: startAndEnd.start + index === pageNo }"
       @click="changePageNo(startAndEnd.start + index)"
@@ -72,6 +72,16 @@ export default {
       }
 
       return { start, end };
+    },
+
+    // 优化
+    continueNoArr() {
+      let { start, end } = this.startAndEnd;
+      let arr = [];
+      for (let i = start; i <= end; i++) {
+        arr.push(arr);
+      }
+      return arr;
     },
   },
 
