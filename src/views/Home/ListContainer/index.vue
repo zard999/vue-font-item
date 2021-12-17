@@ -4,7 +4,10 @@
     <div class="sortList clearfix">
       <div class="center">
         <!--banner轮播-->
-        <Carousel :bannerList="bannerList"></Carousel>
+        <Carousel
+          :bannerList="bannerList"
+          :bannerClass="'bannerSwiper'"
+        ></Carousel>
       </div>
       <div class="right">
         <div class="news">

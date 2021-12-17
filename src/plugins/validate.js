@@ -1,5 +1,5 @@
 import Vue from "vue";
-import zh_CN from "vee-validate/dist/locale/zh_CN"; // 引入中文message
+import zh_CN from "vee-validate/dist/locale/zh_CN.js"; // 引入中文message
 
 import VeeValidate from "vee-validate";
 Vue.use(VeeValidate);
