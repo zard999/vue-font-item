@@ -4,58 +4,60 @@
     <div class="container">
       <div class="nav-left" @mouseleave="handleLeave">
         <h2 class="all" @mouseenter="isShowNav = true">全部商品分类</h2>
-        <div class="sort" v-show="isShowNav">
-          <div class="all-sort-list2" @click="btnSearch">
-            <div
-              class="item"
-              :class="{ hov: currentIndex === index }"
-              v-for="(c1, index) in categoryList"
-              :key="c1.categoryId"
-              @mouseenter="showCategorys(index)"
-              @mouseleave="hideCategorys"
-            >
-              <h3>
-                <a
-                  href="javascript:;"
-                  :data-level="1"
-                  :data-name="c1.categoryName"
-                  :data-id="c1.categoryId"
-                  >{{ c1.categoryName }}</a
-                >
-              </h3>
-              <div class="item-list clearfix">
-                <div class="subitem">
-                  <dl
-                    class="fore"
-                    v-for="c2 in c1.categoryChild"
-                    :key="c2.categoryId"
+        <transition name="sort">
+          <div class="sort" v-show="isShowNav">
+            <div class="all-sort-list2" @click="btnSearch">
+              <div
+                class="item"
+                :class="{ hov: currentIndex === index }"
+                v-for="(c1, index) in categoryList"
+                :key="c1.categoryId"
+                @mouseenter="showCategorys(index)"
+                @mouseleave="hideCategorys"
+              >
+                <h3>
+                  <a
+                    href="javascript:;"
+                    :data-level="1"
+                    :data-name="c1.categoryName"
+                    :data-id="c1.categoryId"
+                    >{{ c1.categoryName }}</a
                   >
-                    <dt>
-                      <a
-                        href="javascript:;"
-                        :data-level="2"
-                        :data-name="c2.categoryName"
-                        :data-id="c2.categoryId"
-                        >{{ c2.categoryName }}</a
-                      >
-                    </dt>
-                    <dd>
-                      <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
+                </h3>
+                <div class="item-list clearfix">
+                  <div class="subitem">
+                    <dl
+                      class="fore"
+                      v-for="c2 in c1.categoryChild"
+                      :key="c2.categoryId"
+                    >
+                      <dt>
                         <a
                           href="javascript:;"
-                          :data-level="3"
-                          :data-name="c3.categoryName"
-                          :data-id="c3.categoryId"
-                          >{{ c3.categoryName }}</a
+                          :data-level="2"
+                          :data-name="c2.categoryName"
+                          :data-id="c2.categoryId"
+                          >{{ c2.categoryName }}</a
                         >
-                      </em>
-                    </dd>
-                  </dl>
+                      </dt>
+                      <dd>
+                        <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
+                          <a
+                            href="javascript:;"
+                            :data-level="3"
+                            :data-name="c3.categoryName"
+                            :data-id="c3.categoryId"
+                            >{{ c3.categoryName }}</a
+                          >
+                        </em>
+                      </dd>
+                    </dl>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </transition>
       </div>
       <nav class="nav">
         <a href="###">服装城</a>
@@ -185,8 +187,20 @@ export default {
       width: 210px;
       height: 461px;
       position: absolute;
-      background: #fafafa;
+      background: #fff;
       z-index: 999;
+
+      &.sort-enter {
+        height: 0;
+        opacity: 0;
+      }
+      &.sort-enter-to {
+        height: 461px;
+        opacity: 1;
+      }
+      &.sort-enter-active {
+        transition: all 0.2s;
+      }
 
       .all-sort-list2 {
         .item {

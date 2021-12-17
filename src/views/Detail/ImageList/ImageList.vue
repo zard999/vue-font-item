@@ -7,7 +7,7 @@
         :key="img.id"
         @click="changeDefaultIndex(index)"
       >
-        <img :src="img.imgUrl" :class="{ active: currentIndex === index }" />
+        <img v-lazy="img.imgUrl" :class="{ active: currentIndex === index }" />
       </div>
     </div>
     <div class="swiper-button-next"></div>

@@ -3,7 +3,7 @@
   <div class="swiper-container" id="mySwiper" :ref="bannerClass">
     <div class="swiper-wrapper">
       <div class="swiper-slide" v-for="banner in bannerList" :key="banner.id">
-        <img :src="banner.imgUrl" />
+        <img v-lazy="banner.imgUrl" />
       </div>
     </div>
     <!-- 如果需要分页器 -->

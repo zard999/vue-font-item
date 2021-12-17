@@ -45,7 +45,7 @@
               <td width="60%">
                 <div class="typographic">
                   <img
-                    :src="detail.imgUrl"
+                    v-lazy="detail.imgUrl"
                     style="width: 100px; height: 100px"
                   />
                   <a href="#" class="block-text">{{ detail.skuName }}</a>
